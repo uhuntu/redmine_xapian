@@ -25,7 +25,7 @@
   <% require 'xapian' %>
   <% xapian_disabled = false %>
 <% rescue LoadError => e %>
-  <% Rails.logger.warn e.message %>
+  <% Rails.logger.error e.message %>
   <% xapian_disabled = true %>
 <% end %>
 

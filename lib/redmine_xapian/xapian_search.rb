@@ -21,6 +21,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 require 'uri'
+require 'xapian'
 
 module RedmineXapian
   include ContainerTypeHelper
@@ -38,7 +39,7 @@ module RedmineXapian
       Rails.logger.debug "stemming_strategy: #{stemming_strategy}"
       databasepath = get_database_path(xapian_file)
       Rails.logger.debug "databasepath: #{databasepath}"
-
+      
       begin
         database = Xapian::Database.new(databasepath)
       rescue => e
