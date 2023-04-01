@@ -145,6 +145,7 @@ module RedmineXapian
           project_ids = projects.collect(&:id) if projects
 
           if allowed && (project_ids.blank? || (attachment.project && project_ids.include?(attachment.project.id)))
+            # Rails.logger.info "dochash[:sample] = #{dochash[:sample]}"
             Redmine::Search.cache_store.write("Attachment-#{attachment.id}",
               dochash[:sample].force_encoding('UTF-8')) if dochash[:sample]
             return attachment
