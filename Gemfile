@@ -21,5 +21,10 @@
 
 source 'https://rubygems.org' do
 
+gem 'rtesseract'
+gem 'ruby-filemagic'
+gem 'mime-types'
+gem 'mimemagic'
+
 end
 
