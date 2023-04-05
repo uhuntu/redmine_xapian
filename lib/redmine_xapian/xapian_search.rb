@@ -104,7 +104,14 @@ module RedmineXapian
           end
         elsif xapian_file == 'Attachment'
           if m.document.data =~ /^url=(.+)\W+sample=(.+)\W+(author|type|caption|modtime|size)=/
-            dochash = { url: p.unescape($1), sample: $2 }
+            url = p.unescape($1)
+            sample = $2
+            if url.include?("png.txt") || url.include?("jpg.txt")
+              url = url.chomp(".txt")
+              Rails.logger.info url
+            end
+            dochash = { url: url, sample: sample }
+            Rails.logger.info "dochash = #{dochash}"
             attachment = process_attachment(projects_to_search, dochash, user)
             if attachment
               xpattachments << attachment
