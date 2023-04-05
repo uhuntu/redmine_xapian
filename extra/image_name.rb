@@ -6,17 +6,19 @@ class ExtractNameFromImage
   def move_images_from_folder(path)
     count = 0
     Dir.glob("#{path}/**/*") do |file|
-      # puts "file = #{file}"
       fm = FileMagic.new
       res = fm.file(file, true)
-      # puts "res = #{res}"
       if res != "png" && res != "jpeg"
         next
       end
-      image = RTesseract.new(file)
+      file_txt = file + ".txt"
+      puts "file_txt = #{file_txt}"
+      if File.exist?(file_txt)
+        next
+      end
+      image = RTesseract.new(file, lang: 'chi_sim+chi_tra')
       text = image.to_s
-      tsv = image.to_tsv  # Getting open file of tsv
-      puts "tsv = #{tsv.path}"
+      File.open(file_txt, 'w') { |ft| ft.write(text) }
       count += 1
       # puts "text = #{text}"
       puts "Ok #{file} scanned #{count}"
