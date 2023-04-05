@@ -27,7 +27,6 @@ module RedmineXapian
   include ContainerTypeHelper
   module XapianSearch
 
-
     def xapian_search(tokens, limit_options, projects_to_search, all_words, user, xapian_file)
       Rails.logger.debug 'XapianSearch::xapian_search'
       xpattachments = []
@@ -144,13 +143,14 @@ module RedmineXapian
           projects = [] << projects if projects.is_a?(Project)
           project_ids = projects.collect(&:id) if projects
 
-          if allowed && (project_ids.blank? || (attachment.project && project_ids.include?(attachment.project.id)))
-            # Rails.logger.info "dochash[:sample] = #{dochash[:sample]}"
-            Redmine::Search.cache_store.write("Attachment-#{attachment.id}",
-              dochash[:sample].force_encoding('UTF-8')) if dochash[:sample]
-            return attachment
+          if allowed
+            if project_ids.blank? || (attachment.project && project_ids.include?(attachment.project.id))
+              Redmine::Search.cache_store.write("Attachment-#{attachment.id}",
+                dochash[:sample].force_encoding('UTF-8')) if dochash[:sample]
+              return attachment
+            end
           else
-            Rails.logger.warn 'User without permissions'
+            Rails.logger.info 'User without permissions for process attachment in xapian search'
           end
         end
       end
