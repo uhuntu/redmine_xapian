@@ -111,14 +111,14 @@ class Repofile
   private
   
   def self.search(tokens, user, projects, options)     
-    Rails.logger.debug 'Repository::search'
+    Rails.logger.info 'Repository::search'
     search_data = SearchData.new self, tokens, projects, options, user, name
     search_results = []
     unless options[:titles_only]
-      Rails.logger.debug "Call xapian search service for #{name.inspect}"          
+      Rails.logger.info "Call xapian search service for #{name.inspect}"          
       xapian_results = XapianSearchService.search search_data
       search_results.concat xapian_results unless xapian_results.blank?
-      Rails.logger.debug "Call xapian search service for  #{name.inspect} completed"          
+      Rails.logger.info "Call xapian search service for  #{name.inspect} completed"          
     end
     search_results
   end           

@@ -28,16 +28,16 @@ module RedmineXapian
   module XapianSearch
 
     def xapian_search(tokens, limit_options, projects_to_search, all_words, user, xapian_file)
-      Rails.logger.debug 'XapianSearch::xapian_search'
+      Rails.logger.info 'XapianSearch::xapian_search'
       xpattachments = []
       return nil unless Setting.plugin_redmine_xapian['enable']
-      Rails.logger.debug "Global settings dump #{Setting.plugin_redmine_xapian.inspect}"
+      Rails.logger.info "Global settings dump #{Setting.plugin_redmine_xapian.inspect}"
       stemming_lang = Setting.plugin_redmine_xapian['stemming_lang'].rstrip
-      Rails.logger.debug "stemming_lang: #{stemming_lang}"
+      Rails.logger.info "stemming_lang: #{stemming_lang}"
       stemming_strategy = Setting.plugin_redmine_xapian['stemming_strategy'].rstrip
-      Rails.logger.debug "stemming_strategy: #{stemming_strategy}"
+      Rails.logger.info "stemming_strategy: #{stemming_strategy}"
       databasepath = get_database_path(xapian_file)
-      Rails.logger.debug "databasepath: #{databasepath}"
+      Rails.logger.info "databasepath: #{databasepath}"
       
       begin
         database = Xapian::Database.new(databasepath)
@@ -75,8 +75,8 @@ module RedmineXapian
       flags = Xapian::QueryParser::FLAG_WILDCARD
       flags |= Xapian::QueryParser::FLAG_CJK_NGRAM if Setting.plugin_redmine_xapian['enable_cjk_ngrams']
       query = qp.parse_query(query_string, flags)
-      Rails.logger.debug "query_string is: #{query_string}"
-      Rails.logger.debug "Parsed query is: #{query.description}"
+      Rails.logger.info "query_string is: #{query_string}"
+      Rails.logger.info "Parsed query is: #{query.description}"
 
       # Find the top 100 results for the query.
       enquire.query = query
@@ -85,8 +85,8 @@ module RedmineXapian
       return nil if matchset.nil?
 
       # Display the results.
-      Rails.logger.debug "Matches 1-#{matchset.size} records:"
-      Rails.logger.debug "Searching for #{(xapian_file == 'Repofile') ? 'repofiles' : 'attachments'}"
+      Rails.logger.info "Matches 1-#{matchset.size} records:"
+      Rails.logger.info "Searching for #{(xapian_file == 'Repofile') ? 'repofiles' : 'attachments'}"
       i = 0
       p = URI::Parser.new
 
@@ -114,7 +114,7 @@ module RedmineXapian
           end
         end
       end
-      Rails.logger.debug 'Xapian searched'
+      Rails.logger.info 'Xapian searched'
       xpattachments.map{ |a| [a.created_on, a.id] }
     end
 
@@ -123,11 +123,11 @@ module RedmineXapian
     def process_attachment(projects, dochash, user)
       attachment = Attachment.where(disk_filename: dochash[:url].split('/').last).first
       if attachment
-        Rails.logger.debug "Attachment created on #{attachment.created_on}"
-        Rails.logger.debug "Attachment's project #{attachment.project}"
-        Rails.logger.debug "Attachment's docattach not nil..:  #{attachment}"
+        Rails.logger.info "Attachment created on #{attachment.created_on}"
+        Rails.logger.info "Attachment's project #{attachment.project}"
+        Rails.logger.info "Attachment's docattach not nil..:  #{attachment}"
         if attachment.container
-          Rails.logger.debug 'Adding attachment'
+          Rails.logger.info 'Adding attachment'
           project = attachment.project
           container_type = attachment[:container_type]
           container_permission = ContainerTypeHelper.to_permission(container_type)
@@ -158,19 +158,19 @@ module RedmineXapian
     end
 
     def process_repo_file(projects, dochash, user, id)
-      Rails.logger.debug "Repository file: #{dochash[:url]}"
-      Rails.logger.debug "Repository date: #{dochash[:date]}"
-      Rails.logger.debug "Repository sample field: #{dochash[:sample]}"
+      Rails.logger.info "Repository file: #{dochash[:url]}"
+      Rails.logger.info "Repository date: #{dochash[:date]}"
+      Rails.logger.info "Repository sample field: #{dochash[:sample]}"
       repository_attachment = nil
       if dochash[:url] =~ /^#{Redmine::Utils::relative_url_root}\/projects\/(.+)\/repository\/(?:revisions\/(.*)\/|([a-zA-Z_0-9]*)\/)?(?:revisions\/(.*))?\/?entry\/(?:(?:branches|tags)\/(.+?)\/)?(.+?)(?:\?rev=(.*))?$/
         repo_project_identifier = $1
-        Rails.logger.debug "Project identifier: #{repo_project_identifier}"
+        Rails.logger.info "Project identifier: #{repo_project_identifier}"
         repo_identifier = $3
-        Rails.logger.debug "Repository identifier: #{repo_identifier}"
+        Rails.logger.info "Repository identifier: #{repo_identifier}"
         repo_filename = $6
-        Rails.logger.debug "Repository file: #{repo_filename}"
+        Rails.logger.info "Repository file: #{repo_filename}"
         repo_revision = (!$2.nil? ? $2 : '') + (!$4.nil? ? $4 : '') + (!$5.nil? ? $5 : '') +(!$7.nil? ? $7 : '')
-        Rails.logger.debug "Repository revision: #{repo_revision}"
+        Rails.logger.info "Repository revision: #{repo_revision}"
         project = Project.where(identifier: repo_project_identifier).first
         if project
           if repo_identifier != ''
@@ -179,7 +179,7 @@ module RedmineXapian
             repository = Repository.where(project_id: project.id).first if project
           end
           if repository
-            Rails.logger.debug "Repository found #{repository.identifier}"
+            Rails.logger.info "Repository found #{repository.identifier}"
             projects = [] << projects if projects.is_a?(Project)
             project_ids = projects.collect(&:id) if projects
             allowed = user.allowed_to?(:browse_repository, repository.project)
