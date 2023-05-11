@@ -35,13 +35,14 @@ REDMINE_ROOT = File.expand_path('../../../', __dir__)
 FILES = 'files'
 
 # scriptindex binary path
-SCRIPTINDEX = '/usr/bin/scriptindex'
+SCRIPTINDEX = '/usr/local/bin/scriptindex'
 
 # omindex binary path
 # To index "non-text" files, use omindex filters
 # e.g.: tesseract OCR engine as a filter for PNG files
-# OMINDEX = "/usr/bin/omindex --filter=image/png:'tesseract %f -'"
-OMINDEX = '/usr/bin/omindex'
+OMINDEX = '/usr/local/bin/omindex'
+OMINDEX += " --filter=image/png:'tesseract -l chi_sim+chi_tra %f -'"
+OMINDEX += " --filter=image/jpeg:'tesseract -l chi_sim+chi_tra %f -'"
 
 # Directory containing Xapian databases for omindex (Attachments indexing)
 DBROOTPATH = File.expand_path('file_index', REDMINE_ROOT)
